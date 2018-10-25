@@ -28,6 +28,7 @@ function legend(element, keys, z) {
             return z(d)
         });
 
+
     legend.append('text')
         .attr('x', legendRectSize + 5)
         .attr('y', 15)
@@ -38,7 +39,7 @@ function legend(element, keys, z) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function treemap(element) {
+function treemap(element, primary, secondary) {
 
     $("#treemap_" + element).html("");
     $("#legend_" + element).html("");
@@ -56,10 +57,10 @@ function treemap(element) {
 
     var nested_data = d3.nest()
         .key(function (d) {
-            return d.status;
+            return d[primary];
         })
         .key(function (d) {
-            return d.who;
+            return d[secondary];
         })
         .rollup(function (d) {
             return d.length;
@@ -199,6 +200,24 @@ function bar_chart(element, property) {
         })
         .style("fill", function (d) {
             return z(d.key)
+        })
+    .on("mouseover", function(d){
+        d3.select(".tooltip")
+            .style("display", "block")
+
+        d3.select(this)
+            .transition().duration(100)
+            //.attr("fill", "black")
+            .attr("y", y(d.value.size) - 10)
+    })
+        .on("mouseout", function(d){
+            d3.select(".tooltip")
+                .style("display", "none");
+            //d3.select(this).attr("fill", c(d.fruit));
+            d3.select(this)
+                .transition().duration(100)
+                //.attr("fill", c(d.fruit))
+                .attr("y", y(d.value.size))
         });
 
     g.append("g")
@@ -346,7 +365,8 @@ $(function () {
         bar_chart("bcs", "status");
         bar_chart("bcw", "who");
         bar_chart_time("bct","time");
-        treemap("status");
+        treemap("status", "status", "who");
+        treemap("who", "who", "status");
 
         bar_chart_datatime("time_all",time_all);
         bar_chart_datatime("time_joe",time_joe);
